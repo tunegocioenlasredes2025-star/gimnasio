@@ -8,7 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>ATLETAS · Seguimiento de entrenamiento</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
 
@@ -23,18 +26,28 @@
         <span id="header-user" class="header-name">Atleta</span>
       </div>
       <div class="header-right">
-        <span id="cloud-badge" class="cloud-badge off">● Local</span>
-        <button id="switch-user" class="header-switch" title="Cambiar atleta">⇆</button>
+        <span id="cloud-badge" class="cloud-badge off">Local</span>
+        <button id="switch-user" class="header-switch" title="Cambiar atleta" aria-label="Cambiar atleta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M7 4 4 7M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg>
+        </button>
       </div>
     </header>
 
     <main id="view" class="view"></main>
 
     <nav class="bottom-nav">
-      <button class="nav-btn active" data-tab="inicio"><span class="nav-ico">🏠</span><span>Inicio</span></button>
-      <button class="nav-btn" data-tab="entrenar"><span class="nav-ico">🏋️</span><span>Entrenar</span></button>
-      <button class="nav-btn" data-tab="analisis"><span class="nav-ico">📈</span><span>Análisis</span></button>
-      <button class="nav-btn" data-tab="historial"><span class="nav-ico">📅</span><span>Historial</span></button>
+      <button class="nav-btn active" data-tab="inicio">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span><span>Inicio</span>
+      </button>
+      <button class="nav-btn" data-tab="entrenar">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M3.5 9v6M17.5 6.5v11M20.5 9v6M6.5 12h11"/></svg></span><span>Entrenar</span>
+      </button>
+      <button class="nav-btn" data-tab="analisis">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M7 14l3.5-4 3 2.5L21 7"/></svg></span><span>Análisis</span>
+      </button>
+      <button class="nav-btn" data-tab="historial">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span><span>Historial</span>
+      </button>
     </nav>
   </div>
 
@@ -45,9 +58,9 @@
 
   <!-- Supabase (opcional, solo si hay claves en config.js) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="data.js"></script>
-  <script src="charts.js"></script>
-  <script src="app.js"></script>
+  <script src="config.js?v=2"></script>
+  <script src="data.js?v=2"></script>
+  <script src="charts.js?v=2"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

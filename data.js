@@ -381,13 +381,14 @@
     if (Cloud.enabled) TABLES.forEach(t => (cache[t] || []).forEach(o => Cloud.push(t, o)));
   }
 
-  /* ---------- Semilla: Mateo y Joaco ---------- */
+  /* ---------- Semilla: Mateo y Joaco ----------
+     Idempotente por nombre: si la nube arranca vacía y borró la copia
+     local, recrea los atletas por defecto sin duplicarlos. */
   function seedIfEmpty() {
     const d = load();
-    if (d._seeded) return;
-    d._seeded = true;
     if (!d.usuarios.some(u => u.nombre === 'Mateo')) crearUsuario('Mateo');
     if (!d.usuarios.some(u => u.nombre === 'Joaco')) crearUsuario('Joaco');
+    d._seeded = true;
     save();
   }
 

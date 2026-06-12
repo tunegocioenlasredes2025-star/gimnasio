@@ -10,6 +10,13 @@
   const num = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
   const fmt = (n) => Math.round(n).toLocaleString('es-AR');
 
+  const ICONS = {
+    trophy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>',
+    up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
+  };
+
   const state = {
     usuarioId: null,
     tab: 'inicio',
@@ -48,8 +55,8 @@
   function actualizarBadgeNube() {
     const b = $('#cloud-badge');
     if (!b) return;
-    if (DB.cloudEnabled) { b.textContent = '● Nube'; b.className = 'cloud-badge on'; }
-    else { b.textContent = '● Local'; b.className = 'cloud-badge off'; }
+    if (DB.cloudEnabled) { b.textContent = 'Nube'; b.className = 'cloud-badge on'; }
+    else { b.textContent = 'Local'; b.className = 'cloud-badge off'; }
   }
 
   /* ============================================================
@@ -132,7 +139,7 @@
     return `
     <section class="view-section">
       <div class="section-head">
-        <h2>Hola, ${esc(u.nombre)} 👋</h2>
+        <h2>Hola, ${esc(u.nombre)}</h2>
         <p class="muted">${m.totalSesiones} entrenamientos registrados</p>
       </div>
 
@@ -155,7 +162,7 @@
       </div>` : ''}
 
       <div class="card">
-        <div class="card-head"><h3>🏆 Récords</h3><span class="muted">por 1RM estimado</span></div>
+        <div class="card-head"><h3><span class="h-ico trophy">${ICONS.trophy}</span>Récords</h3><span class="muted">por 1RM estimado</span></div>
         ${recs.length ? `<div class="record-list">${recs.map(r => `
           <div class="record-row">
             <div class="record-name">${esc(r.nombre)}${r.principal ? '<span class="dot-principal" title="Ejercicio principal"></span>' : ''}</div>
@@ -252,10 +259,10 @@
           ${ej.principal ? '<span class="tag principal">Principal</span>' : ''}
           <span class="tag rango">${rango.min}–${rango.max} reps</span>
         </div>
-        <button class="ej-del" data-ej="${idx}" title="Quitar ejercicio">🗑</button>
+        <button class="ej-del" data-ej="${idx}" title="Quitar ejercicio" aria-label="Quitar ejercicio">${ICONS.trash}</button>
       </div>
       ${ultima ? `<div class="ej-last">Última vez: ${ultima.series.filter(s => num(s.reps) > 0).map(s => `${esc(s.peso || 0)}×${esc(s.reps)}`).join(' · ') || '—'}</div>` : ''}
-      ${prog ? `<div class="ej-hint ${prog.tipo === 'subir' ? 'up' : ''}">${prog.tipo === 'subir' ? '⬆ ' : 'ℹ '}${esc(prog.texto)}</div>` : ''}
+      ${prog ? `<div class="ej-hint ${prog.tipo === 'subir' ? 'up' : ''}"><span class="hint-ico">${prog.tipo === 'subir' ? ICONS.up : ICONS.info}</span>${esc(prog.texto)}</div>` : ''}
       <div class="serie-head"><span class="serie-n">#</span><span>Peso</span><span>Reps</span><span>RIR</span><span></span></div>
       <div class="series-cont">${series}</div>
       <button class="btn-ghost btn-sm add-serie" data-ej="${idx}">＋ Serie</button>
@@ -408,10 +415,10 @@
 
     if (state.editandoId) {
       DB.actualizarSesion(state.editandoId, b);
-      toast('Entrenamiento actualizado ✓');
+      toast('Entrenamiento actualizado');
     } else {
       DB.crearSesion(b);
-      toast('Entrenamiento guardado ✓');
+      toast('Entrenamiento guardado');
     }
     state.borrador = null; state.editandoId = null;
     state.tab = 'inicio';
