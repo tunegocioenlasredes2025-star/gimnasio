@@ -381,9 +381,20 @@
       </div>
       ${ejs || '<p class="empty">Sin series cargadas.</p>'}
       ${s.observaciones ? `<div class="det-obs"><span class="muted">Observaciones</span><p>${esc(s.observaciones)}</p></div>` : ''}
-      <button class="btn-primary btn-block" id="editar-sesion" data-id="${s.id}">Editar entrenamiento</button>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="editar-sesion" data-id="${s.id}">Editar</button>
+        <button class="btn-danger" id="eliminar-sesion-modal" data-id="${s.id}">Eliminar</button>
+      </div>
     `);
     $('#editar-sesion').addEventListener('click', () => { cerrarModal(); editarSesion(s.id); });
+    $('#eliminar-sesion-modal').addEventListener('click', () => {
+      if (confirm('¿Eliminar este entrenamiento? No se puede deshacer.')) {
+        DB.eliminarSesion(s.id);
+        cerrarModal();
+        toast('Entrenamiento eliminado');
+        render();
+      }
+    });
   }
 
   function editarSesion(id) {
