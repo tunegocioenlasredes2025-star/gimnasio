@@ -1,0 +1,7 @@
+# Config local de preview (no hace falta en producción)
+.claude/
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store

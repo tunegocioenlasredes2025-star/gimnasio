@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>ATLETAS · Seguimiento de entrenamiento</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Selector de usuario -->
+  <div id="selector" class="hidden"></div>
+
+  <!-- App -->
+  <div id="app" class="hidden">
+    <header class="app-header">
+      <div class="header-left">
+        <span id="header-avatar" class="header-avatar">A</span>
+        <span id="header-user" class="header-name">Atleta</span>
+      </div>
+      <div class="header-right">
+        <span id="cloud-badge" class="cloud-badge off">● Local</span>
+        <button id="switch-user" class="header-switch" title="Cambiar atleta">⇆</button>
+      </div>
+    </header>
+
+    <main id="view" class="view"></main>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-tab="inicio"><span class="nav-ico">🏠</span><span>Inicio</span></button>
+      <button class="nav-btn" data-tab="entrenar"><span class="nav-ico">🏋️</span><span>Entrenar</span></button>
+      <button class="nav-btn" data-tab="analisis"><span class="nav-ico">📈</span><span>Análisis</span></button>
+      <button class="nav-btn" data-tab="historial"><span class="nav-ico">📅</span><span>Historial</span></button>
+    </nav>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden">
+    <div id="modal-content" class="modal-content"></div>
+  </div>
+
+  <!-- Supabase (opcional, solo si hay claves en config.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="charts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

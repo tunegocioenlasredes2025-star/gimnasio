@@ -1,0 +1,111 @@
+============================================================
+ ATLETAS · App de seguimiento de entrenamiento
+ Tu Negocio En Las Redes
+============================================================
+
+QUÉ ES
+------------------------------------------------------------
+App web (HTML/CSS/JS puro + Supabase) para registrar y analizar
+entrenamientos de fuerza/hipertrofia. Sin login: se elige el
+atleta (Mateo / Joaco) y se entra directo a su espacio.
+
+Funciona de DOS formas:
+  • LOCAL  → sin configurar nada, guarda en el navegador del
+             dispositivo (ideal para probar al instante).
+  • NUBE   → con Supabase, los datos se comparten y sincronizan
+             en tiempo real entre todos los celulares.
+
+El badge arriba a la derecha muestra "● Local" o "● Nube".
+
+
+PROBARLO YA (sin Supabase)
+------------------------------------------------------------
+Abrí index.html en el navegador (doble clic). Listo.
+  - Elegí atleta → Inicio.
+  - "Registrar entrenamiento" → elegí Sesión 1/2/3/4 o libre.
+  - Cargá peso/reps/RIR por serie → Guardar.
+  - Mirá Análisis e Historial.
+Los datos quedan en ESE dispositivo (localStorage).
+
+
+ACTIVAR LA NUBE (Supabase) — datos compartidos
+------------------------------------------------------------
+1) Entrá a https://supabase.com y creá un proyecto (gratis).
+2) Menú izquierdo → SQL Editor → New query.
+3) Copiá y pegá TODO el contenido de  supabase-setup.sql  y dale Run.
+4) Menú → Project Settings → API. Copiá:
+      - Project URL
+      - anon public key   (NO la service_role)
+5) Abrí  config.js  y pegalas:
+      window.SUPABASE_URL = 'https://xxxxx.supabase.co';
+      window.SUPABASE_ANON_KEY = 'eyJhbGci...';
+6) Recargá la app. Debe decir "● Nube" arriba a la derecha.
+
+* Son claves PÚBLICAS, no hay problema en que vayan al repo.
+  La única que NUNCA se pone acá es la "service_role".
+
+
+SUBIR A VERCEL (deploy)
+------------------------------------------------------------
+Opción A · Arrastrar (lo más rápido)
+   1) Entrá a https://vercel.com → Add New → Project.
+   2) Arrastrá la carpeta crm-atletas (o conectá el repo de GitHub).
+   3) Framework Preset: "Other" (es estático, sin build).
+      - Build Command: (vacío)
+      - Output Directory: (vacío / raíz)
+   4) Deploy. Te da una URL https://crm-atletas-xxx.vercel.app
+
+Opción B · GitHub
+   1) Subí la carpeta a un repo de GitHub.
+   2) En Vercel → Import → elegí el repo → Deploy.
+   3) Cada push actualiza la app sola.
+
+No hace falta configurar variables de entorno en Vercel: las
+claves de Supabase van en config.js (son públicas). Si preferís
+no commitearlas, podés editar config.js directo en el repo.
+
+CONSEJO MÓVIL: en el celular, abrí la URL en Chrome/Safari →
+menú → "Agregar a pantalla de inicio". Queda como una app.
+
+
+ESTRUCTURA DE ARCHIVOS
+------------------------------------------------------------
+  index.html          → estructura y carga de scripts
+  styles.css          → diseño (dark, mobile-first)
+  config.js           → claves de Supabase (vacías = modo local)
+  data.js             → capa de datos + catálogo + progresión + métricas
+  charts.js           → gráficos en SVG (sin librerías)
+  app.js              → interfaz, navegación, formularios
+  supabase-setup.sql  → tablas, índices, realtime y políticas
+  LEEME.txt           → este archivo
+
+
+SESIONES PRECARGADAS
+------------------------------------------------------------
+  Sesión 1 · Tirón   → Dominadas, Remo, Curl bíceps, Curl Z, Antebrazo, Core
+  Sesión 2 · Empuje  → Press banca, Press inclinado, Press militar,
+                        Elevaciones laterales, Press francés, Polea tríceps
+  Sesión 3 · Pierna A → Sentadilla, Máquina isquios, Gemelos, Step Up,
+                        Levantamiento arrodillado, Estocadas
+  Sesión 4 · Pierna B → Peso muerto, Extensión cuádriceps, Gemelos, Hip Thrust
+
+Ejercicios PRINCIPALES (rango 4–8 reps): Dominadas, Press banca,
+Press militar, Sentadilla, Peso muerto, Hip Thrust, Curl Z.
+El resto son secundarios (rango 8–12 reps).
+
+
+PROGRESIÓN AUTOMÁTICA
+------------------------------------------------------------
+  • Principal: si las 3 series llegan a 8 reps →
+        "Se recomienda aumentar carga en la próxima sesión".
+  • Secundario: si las 3 series llegan a 12 reps →
+        "Listo para progresar peso".
+Se muestra arriba de cada ejercicio en base a la última vez
+que lo hiciste.
+
+
+AGREGAR MÁS ATLETAS
+------------------------------------------------------------
+En la pantalla de selección → "Nuevo atleta". Se suma sin tocar código.
+La arquitectura ya está preparada para más usuarios y más ejercicios.
+============================================================
