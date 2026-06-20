@@ -378,6 +378,207 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ============================================================
+   FRASE DEL DÍA
+   ============================================================ */
+.frase-card {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: linear-gradient(135deg, rgba(34,197,94,.12), rgba(56,189,248,.08));
+  border: 1px solid rgba(34,197,94,.28); border-radius: var(--radius);
+  padding: 14px 16px; margin-bottom: 18px;
+}
+.frase-ico { flex: 0 0 auto; color: var(--primary); opacity: .85; }
+.frase-ico svg { width: 22px; height: 22px; }
+.frase-txt { font-family: var(--font-display); font-size: 15.5px; font-weight: 500; line-height: 1.4; letter-spacing: -.01em; }
+
+/* ============================================================
+   RESUMEN SEMANAL
+   ============================================================ */
+.semana-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.wk { display: flex; flex-direction: column; align-items: center; gap: 3px; background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 4px; }
+.wk-num { font-family: var(--font-display); font-size: 22px; font-weight: 800; line-height: 1; }
+.wk-lbl { font-size: 10.5px; color: var(--muted); text-align: center; }
+.wk.pr { border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.08); }
+.wk.pr .wk-num { color: #fbbf24; }
+@media (max-width: 360px) { .wk-lbl { font-size: 10px; } .wk-num { font-size: 19px; } }
+
+/* ============================================================
+   TAGS POR TIPO + INDICADOR DE PROGRESO + CARGA RÁPIDA
+   ============================================================ */
+.tag.tipo { background: var(--card2); color: var(--muted); }
+.tag.tipo-corporal   { background: rgba(56,189,248,.14);  color: var(--secondary); }
+.tag.tipo-pliometria { background: rgba(168,85,247,.16);  color: #c084fc; }
+.tag.tipo-velocidad  { background: rgba(245,158,11,.16);  color: var(--warn); }
+
+.ej-last { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+.ej-repetir { display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; background: var(--card2); border: 1px solid var(--line); color: var(--secondary); font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 20px; }
+.ej-repetir:active { transform: scale(.95); }
+.ej-repetir svg { width: 13px; height: 13px; }
+
+.ej-delta { font-size: 12.5px; font-weight: 700; color: var(--primary); margin-top: 8px; display: none; }
+.ej-delta.show { display: block; }
+
+/* ============================================================
+   BANNER DE RÉCORD PERSONAL
+   ============================================================ */
+.pr-banner { position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(0,0,0,.55); backdrop-filter: blur(3px); animation: fade .2s ease; }
+.pr-card { width: 100%; max-width: 360px; background: var(--card); border: 1px solid rgba(251,191,36,.4); border-radius: 20px; padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: slideUp .25s ease; }
+.pr-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.pr-top strong { font-family: var(--font-display); font-size: 18px; }
+.pr-trophy { color: #fbbf24; display: inline-flex; }
+.pr-trophy svg { width: 26px; height: 26px; }
+.pr-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.pr-row:last-of-type { border-bottom: none; margin-bottom: 8px; }
+.pr-name { font-weight: 600; font-size: 14px; }
+.pr-val { font-size: 14px; font-weight: 700; }
+.pr-val em { color: var(--primary); font-style: normal; font-size: 12px; margin-left: 4px; }
+.pr-ok { margin-top: 6px; }
+
+/* ============================================================
+   MOBILE: tap targets y series cómodas
+   ============================================================ */
+.serie-in { min-height: 46px; }
+.serie-del { min-width: 30px; min-height: 30px; }
+.add-serie { min-height: 42px; }
+@media (max-width: 360px) {
+  .serie-head, .serie-row { gap: 6px; }
+  .serie-in { padding: 12px 4px; font-size: 15px; }
+}
+
+/* ============================================================
+   AVISO PERFIL · FORM GRID · PERFIL FÍSICO
+   ============================================================ */
+.aviso-perfil {
+  display: block; width: 100%; text-align: left;
+  background: rgba(56,189,248,.1); border: 1px solid rgba(56,189,248,.35);
+  color: var(--secondary); border-radius: var(--radius-sm);
+  padding: 12px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px;
+}
+.aviso-perfil:active { transform: scale(.99); }
+.form-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+.form-grid .field select, .field select {
+  width: 100%; background: var(--bg2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 10px; padding: 11px 12px; font-size: 16px;
+}
+.field select:focus { outline: none; border-color: var(--primary); }
+.input-sub { width: 100%; background: transparent; border: none; color: var(--muted); font-size: 14px; padding: 2px 0 4px; }
+.input-sub:focus { outline: none; color: var(--text); }
+.hist-peso { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 10px; }
+.hp-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.hp-row:last-child { border-bottom: none; }
+
+/* ============================================================
+   RUTINAS
+   ============================================================ */
+.rutina-card { padding: 14px 16px; }
+.rutina-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.rutina-info { display: flex; flex-direction: column; gap: 2px; }
+.rutina-info strong { font-size: 16px; font-weight: 700; }
+.rutina-move { display: flex; gap: 4px; flex: 0 0 auto; }
+.ic-btn {
+  width: 34px; height: 34px; border-radius: 9px; background: var(--bg2); border: 1px solid var(--line);
+  color: var(--muted); display: flex; align-items: center; justify-content: center;
+}
+.ic-btn:disabled { opacity: .35; }
+.ic-btn:not(:disabled):active { transform: scale(.92); }
+.ic-btn svg { width: 16px; height: 16px; }
+.rutina-actions, .re-actions { display: flex; gap: 8px; margin-top: 12px; }
+.rutina-actions .btn-ghost, .re-actions .btn-ghost { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.btn-ghost.danger { color: #fca5a5; border-color: rgba(239,68,68,.3); }
+.btn-sm svg { width: 14px; height: 14px; }
+
+.re-card { padding: 13px 14px; }
+.re-main { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.re-info strong { font-size: 15px; font-weight: 700; }
+.re-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.re-move { display: flex; gap: 4px; flex: 0 0 auto; }
+
+/* ============================================================
+   FUERZA RELATIVA
+   ============================================================ */
+.fr-list { display: flex; flex-direction: column; }
+.fr-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.fr-row:last-child { border-bottom: none; }
+.fr-name { display: flex; flex-direction: column; gap: 2px; font-weight: 600; font-size: 14px; }
+.fr-name .muted { font-size: 11px; }
+.fr-right { display: flex; align-items: center; gap: 9px; font-size: 14px; }
+.fr-right b { font-family: var(--font-display); color: var(--primary); }
+.nivel-badge { font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; letter-spacing: .4px; }
+.nivel-0 { background: rgba(148,163,184,.16); color: var(--muted); }
+.nivel-1 { background: rgba(56,189,248,.16); color: var(--secondary); }
+.nivel-2 { background: rgba(34,197,94,.16); color: var(--primary); }
+.nivel-3 { background: rgba(251,191,36,.18); color: #fbbf24; }
+
+/* ============================================================
+   FRASE DEL DÍA
+   ============================================================ */
+.frase-card {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: linear-gradient(135deg, rgba(34,197,94,.12), rgba(56,189,248,.08));
+  border: 1px solid rgba(34,197,94,.28); border-radius: var(--radius);
+  padding: 14px 16px; margin-bottom: 18px;
+}
+.frase-ico { flex: 0 0 auto; color: var(--primary); opacity: .85; }
+.frase-ico svg { width: 22px; height: 22px; }
+.frase-txt { font-family: var(--font-display); font-size: 15.5px; font-weight: 500; line-height: 1.4; letter-spacing: -.01em; }
+
+/* ============================================================
+   RESUMEN SEMANAL
+   ============================================================ */
+.semana-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.wk { display: flex; flex-direction: column; align-items: center; gap: 3px; background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 4px; }
+.wk-num { font-family: var(--font-display); font-size: 22px; font-weight: 800; line-height: 1; }
+.wk-lbl { font-size: 10.5px; color: var(--muted); text-align: center; }
+.wk.pr { border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.08); }
+.wk.pr .wk-num { color: #fbbf24; }
+@media (max-width: 360px) { .wk-lbl { font-size: 10px; } .wk-num { font-size: 19px; } }
+
+/* ============================================================
+   TAGS POR TIPO + INDICADOR DE PROGRESO + CARGA RÁPIDA
+   ============================================================ */
+.tag.tipo { background: var(--card2); color: var(--muted); }
+.tag.tipo-corporal   { background: rgba(56,189,248,.14);  color: var(--secondary); }
+.tag.tipo-pliometria { background: rgba(168,85,247,.16);  color: #c084fc; }
+.tag.tipo-velocidad  { background: rgba(245,158,11,.16);  color: var(--warn); }
+
+.ej-last { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+.ej-repetir { display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; background: var(--card2); border: 1px solid var(--line); color: var(--secondary); font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 20px; }
+.ej-repetir:active { transform: scale(.95); }
+.ej-repetir svg { width: 13px; height: 13px; }
+.ej-delta { font-size: 12.5px; font-weight: 700; color: var(--primary); margin-top: 8px; display: none; }
+.ej-delta.show { display: block; }
+
+/* ============================================================
+   BANNER DE RÉCORD PERSONAL
+   ============================================================ */
+.pr-banner { position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(0,0,0,.55); backdrop-filter: blur(3px); animation: fade .2s ease; }
+.pr-card { width: 100%; max-width: 360px; background: var(--card); border: 1px solid rgba(251,191,36,.4); border-radius: 20px; padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.5); animation: slideUp .25s ease; }
+.pr-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.pr-top strong { font-family: var(--font-display); font-size: 18px; }
+.pr-trophy { color: #fbbf24; display: inline-flex; }
+.pr-trophy svg { width: 26px; height: 26px; }
+.pr-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.pr-row:last-of-type { border-bottom: none; margin-bottom: 8px; }
+.pr-name { font-weight: 600; font-size: 14px; }
+.pr-val { font-size: 14px; font-weight: 700; }
+.pr-val em { color: var(--primary); font-style: normal; font-size: 12px; margin-left: 4px; }
+.pr-ok { margin-top: 6px; }
+
+/* ============================================================
+   MOBILE: tap targets, 5 tabs
+   ============================================================ */
+.serie-in { min-height: 46px; }
+.serie-del { min-width: 30px; min-height: 30px; }
+.add-serie { min-height: 42px; }
+.nav-btn .nav-ico svg { width: 22px; height: 22px; }
+.bottom-nav .nav-btn { font-size: 10.5px; }
+@media (max-width: 360px) {
+  .serie-head, .serie-row { gap: 6px; }
+  .serie-in { padding: 12px 4px; font-size: 15px; }
+  .nav-btn { font-size: 10px; }
+  .nav-btn .nav-ico svg { width: 21px; height: 21px; }
+}
+
 /* desktop: limitar ancho y centrar */
 @media (min-width: 600px) {
   .view { padding-left: 20px; padding-right: 20px; }
