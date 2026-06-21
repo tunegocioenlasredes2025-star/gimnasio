@@ -182,6 +182,7 @@
     else if (state.tab === 'rutinas') view.innerHTML = state.rutinaEditId ? vistaRutinaEditor() : vistaRutinas();
     else if (state.tab === 'analisis') view.innerHTML = vistaAnalisis();
     else if (state.tab === 'historial') view.innerHTML = vistaHistorial();
+    else if (state.tab === 'objetivos') view.innerHTML = vistaObjetivos();
     view.scrollTop = 0; window.scrollTo(0, 0);
     bindVista();
   }
@@ -199,6 +200,7 @@
     return '<span class="muted">—</span>';
   }
   function vistaInicio(u) {
+    DB.evaluarObjetivos(u.id);
     const m = DB.metricas(u.id);
     const sem = DB.resumenSemana(u.id);
     const recs = DB.recordsRecientes(u.id, 5);
@@ -224,6 +226,8 @@
       </div>
 
       <button class="btn-primary btn-block big" id="cta-entrenar">＋ Registrar entrenamiento</button>
+
+      ${widgetObjetivos(u)}
 
       ${ultima ? `
       <div class="card">
@@ -562,6 +566,167 @@
     state.borrador = JSON.parse(JSON.stringify(s)); state.editandoId = id; state.tab = 'entrenar'; render();
   }
 
+  /* ============================================================ OBJETIVOS ============================================================ */
+  function unidadObjetivo(o) { return (DB.OBJ_TIPOS[o.tipo] || {}).unidad || ''; }
+  function fmtVal(v, u) { const n = (Math.round(v * 10) / 10).toLocaleString('es-AR'); return u ? `${n} ${u}` : n; }
+  function barraProgreso(pct) { const p = Math.round(pct); return `<div class="prog"><div class="prog-fill ${p >= 100 ? 'full' : ''}" style="width:${p}%"></div></div>`; }
+
+  function objetivoCard(u, o) {
+    const pr = DB.progresoObjetivo(u, o);
+    const un = unidadObjetivo(o);
+    const sub = (o.tipo === 'entrenamientos' && o.periodo === 'semanal') ? ' · por semana' : '';
+    return `<div class="card goal-card">
+      <div class="goal-head">
+        <div class="goal-name">${o.principal ? '<span class="goal-star" title="Principal">★</span>' : ''}${esc(o.nombre)}<span class="goal-tipo">${esc((DB.OBJ_TIPOS[o.tipo] || {}).label || '')}${sub}</span></div>
+        <button class="goal-menu ic-btn" data-id="${o.id}" title="Opciones">⋯</button>
+      </div>
+      <div class="goal-vals"><span>Actual <b>${fmtVal(pr.actual, un)}</b></span><span>Meta <b>${fmtVal(pr.meta, un)}</b></span></div>
+      ${barraProgreso(pr.porcentaje)}
+      <div class="goal-pct">${Math.round(pr.porcentaje)}% completado${o.fechaObjetivo ? ` <span class="muted">· para ${fechaCorta(o.fechaObjetivo)}</span>` : ''}</div>
+    </div>`;
+  }
+
+  // Widget del Dashboard: hasta 2 objetivos activos (principal + más cercano)
+  function widgetObjetivos(u) {
+    const objs = DB.getObjetivos(u.id).filter(o => !o.completado);
+    if (!objs.length) return '';
+    const conP = objs.map(o => ({ o, p: DB.progresoObjetivo(u, o) }));
+    conP.sort((a, b) => ((b.o.principal ? 1 : 0) - (a.o.principal ? 1 : 0)) || (b.p.porcentaje - a.p.porcentaje));
+    const top = conP.slice(0, 2);
+    return `<div class="card goals-widget">
+      <div class="card-head"><h3>Objetivos activos</h3><button class="link-mini" id="ver-objetivos">Ver todos ›</button></div>
+      ${top.map(({ o, p }) => `<div class="gw-row" data-goto="objetivos">
+        <div class="gw-top"><span class="gw-name">${o.principal ? '★ ' : ''}${esc(o.nombre)}</span><span class="gw-pct">${Math.round(p.porcentaje)}%</span></div>
+        ${barraProgreso(p.porcentaje)}
+      </div>`).join('')}
+    </div>`;
+  }
+
+  function vistaObjetivos() {
+    DB.evaluarObjetivos(state.usuarioId);
+    const u = DB.getUsuario(state.usuarioId);
+    const objs = DB.getObjetivos(u.id);
+    const activos = objs.filter(o => !o.completado).map(o => ({ o, p: DB.progresoObjetivo(u, o) }));
+    activos.sort((a, b) => ((b.o.principal ? 1 : 0) - (a.o.principal ? 1 : 0)) || (b.p.porcentaje - a.p.porcentaje));
+    const cumplidos = objs.filter(o => o.completado).sort((a, b) => (b.fechaCompletado || '').localeCompare(a.fechaCompletado || ''));
+    return `
+    <section class="view-section">
+      <div class="section-head"><h2>Objetivos</h2><p class="muted">Hacia dónde vas y cuánto te falta</p></div>
+      <button class="btn-primary btn-block big" id="nuevo-objetivo">＋ Nuevo objetivo</button>
+      ${activos.length ? `<div class="goals-list">${activos.map(x => objetivoCard(u, x.o)).join('')}</div>` : `<p class="empty">Todavía no tenés objetivos activos. Creá el primero ☝</p>`}
+      ${cumplidos.length ? `
+        <div class="section-head sub"><h3>Objetivos logrados</h3></div>
+        <div class="card done-list">${cumplidos.map(o => `<div class="done-row"><span class="done-check">✔</span><span class="done-name">${esc(o.nombre)}</span><span class="muted">${o.fechaCompletado ? fechaCorta(o.fechaCompletado) : ''}</span></div>`).join('')}</div>` : ''}
+    </section>`;
+  }
+
+  function formObjetivo(existingId) {
+    const u = DB.getUsuario(state.usuarioId);
+    const o = existingId ? DB.getObjetivos(u.id).find(x => x.id === existingId) : null;
+    const tipoActual = o ? o.tipo : 'fuerza';
+    abrirModal(`
+      <div class="modal-head"><h3>${o ? 'Editar objetivo' : 'Nuevo objetivo'}</h3><button class="modal-x" data-close>×</button></div>
+      <div class="form-grid">
+        <label class="field block"><span>Nombre del objetivo</span><input id="ob-nombre" autocomplete="off" value="${o ? esc(o.nombre) : ''}" placeholder="Ej: 20 dominadas"/></label>
+        <label class="field block"><span>Tipo</span><select id="ob-tipo">${Object.keys(DB.OBJ_TIPOS).map(k => `<option value="${k}" ${tipoActual === k ? 'selected' : ''}>${DB.OBJ_TIPOS[k].label}</option>`).join('')}</select></label>
+        <div id="ob-dinamico"></div>
+        <div class="meta-row">
+          <label class="field"><span>Valor actual</span><input id="ob-actual" type="number" inputmode="decimal" placeholder="—"/></label>
+          <label class="field"><span>Meta</span><input id="ob-meta" type="number" inputmode="decimal" value="${o ? o.valorObjetivo : ''}" placeholder="20"/></label>
+        </div>
+        <label class="field block"><span>Fecha objetivo (opcional)</span><input id="ob-fecha" type="date" value="${o && o.fechaObjetivo ? o.fechaObjetivo : ''}"/></label>
+        <label class="check-row"><input type="checkbox" id="ob-principal" ${o && o.principal ? 'checked' : ''}/> <span>Marcar como objetivo principal</span></label>
+      </div>
+      <button class="btn-primary btn-block" id="ob-guardar">${o ? 'Guardar cambios' : 'Crear objetivo'}</button>
+    `);
+    const tipoSel = $('#ob-tipo');
+    function refrescarActual() {
+      const inp = $('#ob-actual'); if (!inp) return;
+      const tipo = tipoSel.value;
+      if (tipo === 'personalizado') { inp.readOnly = false; inp.placeholder = 'Valor actual'; if (o && o.tipo === 'personalizado') inp.value = o.valorActualManual || ''; return; }
+      const fake = { tipo, ejercicioId: ($('#ob-ejercicio') || {}).value, periodo: ($('#ob-periodo') || {}).value || 'total' };
+      inp.value = DB.valorActualObjetivo(u, fake); inp.readOnly = true;
+    }
+    function renderDinamico() {
+      const tipo = tipoSel.value, cont = $('#ob-dinamico');
+      let html = '';
+      if (DB.OBJ_TIPOS[tipo].linkEjercicio) {
+        const ejs = DB.getEjerciciosDisponibles(state.usuarioId);
+        html = `<label class="field block"><span>Ejercicio</span><select id="ob-ejercicio">${ejs.map(e => `<option value="${e.id}" ${o && o.ejercicioId === e.id ? 'selected' : ''}>${esc(e.nombre)}</option>`).join('')}</select></label>`;
+      } else if (tipo === 'entrenamientos') {
+        html = `<label class="field block"><span>Modo</span><select id="ob-periodo"><option value="total" ${o && o.periodo === 'total' ? 'selected' : ''}>Total acumulado</option><option value="semanal" ${o && o.periodo === 'semanal' ? 'selected' : ''}>Por semana</option></select></label>`;
+      }
+      cont.innerHTML = html;
+      const eje = $('#ob-ejercicio'); if (eje) eje.addEventListener('change', refrescarActual);
+      const per = $('#ob-periodo'); if (per) per.addEventListener('change', refrescarActual);
+      refrescarActual();
+    }
+    tipoSel.addEventListener('change', renderDinamico);
+    renderDinamico();
+    $('#ob-guardar').addEventListener('click', () => {
+      const datos = {
+        nombre: $('#ob-nombre').value, tipo: tipoSel.value,
+        ejercicioId: ($('#ob-ejercicio') || {}).value || null,
+        periodo: ($('#ob-periodo') || {}).value || 'total',
+        valorActual: $('#ob-actual').value, valorObjetivo: $('#ob-meta').value,
+        fechaObjetivo: $('#ob-fecha').value || null, principal: $('#ob-principal').checked,
+      };
+      if (!datos.nombre.trim()) { toast('Poné un nombre'); return; }
+      if (!num(datos.valorObjetivo)) { toast('Poné una meta'); return; }
+      if (o) {
+        const cambios = {
+          nombre: datos.nombre.trim(), tipo: datos.tipo, ejercicioId: datos.ejercicioId, periodo: datos.periodo,
+          valorObjetivo: num(datos.valorObjetivo), fechaObjetivo: datos.fechaObjetivo, principal: datos.principal,
+          direccion: (datos.tipo === 'peso_corporal' && num(datos.valorObjetivo) < num(o.valorInicial)) ? 'bajar' : 'subir',
+        };
+        if (datos.tipo === 'personalizado') cambios.valorActualManual = num(datos.valorActual);
+        DB.actualizarObjetivo(state.usuarioId, o.id, cambios);
+      } else {
+        DB.crearObjetivo(state.usuarioId, datos);
+      }
+      cerrarModal(); render();
+    });
+    setTimeout(() => { const n = $('#ob-nombre'); if (n) n.focus(); }, 50);
+  }
+
+  function menuObjetivo(id) {
+    const u = DB.getUsuario(state.usuarioId);
+    const o = DB.getObjetivos(u.id).find(x => x.id === id); if (!o) return;
+    abrirModal(`
+      <div class="modal-head"><h3>${esc(o.nombre)}</h3><button class="modal-x" data-close>×</button></div>
+      <div class="form-grid">
+        ${o.tipo === 'personalizado' ? `<button class="btn-ghost btn-block" id="ob-valor">Actualizar valor actual</button>` : ''}
+        <button class="btn-ghost btn-block" id="ob-principal">${o.principal ? 'Quitar de principal' : 'Marcar como principal'}</button>
+        <button class="btn-ghost btn-block" id="ob-editar">${ICONS.edit} Editar objetivo</button>
+        <button class="btn-danger btn-block" id="ob-eliminar">Eliminar objetivo</button>
+      </div>
+    `);
+    const valor = $('#ob-valor');
+    if (valor) valor.addEventListener('click', () => {
+      const v = prompt('Valor actual:', o.valorActualManual || '');
+      if (v != null) { DB.actualizarObjetivo(state.usuarioId, id, { valorActualManual: num(v) }); DB.evaluarObjetivos(state.usuarioId); cerrarModal(); render(); }
+    });
+    $('#ob-principal').addEventListener('click', () => { DB.actualizarObjetivo(state.usuarioId, id, { principal: !o.principal }); cerrarModal(); render(); });
+    $('#ob-editar').addEventListener('click', () => { cerrarModal(); formObjetivo(id); });
+    $('#ob-eliminar').addEventListener('click', () => { if (confirm('¿Eliminar este objetivo?')) { DB.eliminarObjetivo(state.usuarioId, id); cerrarModal(); render(); } });
+  }
+
+  function bindObjetivos() {
+    const nb = $('#nuevo-objetivo'); if (nb) nb.addEventListener('click', () => formObjetivo());
+    $$('.goal-menu').forEach(b => b.addEventListener('click', () => menuObjetivo(b.dataset.id)));
+  }
+
+  function notificarObjetivos(nuevos) {
+    const lista = nuevos.slice(0, 4).map(o => `<div class="pr-row"><span class="pr-name">${esc(o.nombre)}</span><span class="pr-val"><em>✔ cumplido</em></span></div>`).join('');
+    const banner = document.createElement('div');
+    banner.className = 'pr-banner';
+    banner.innerHTML = `<div class="pr-card"><div class="pr-top"><span class="pr-trophy">${ICONS.trophy}</span><strong>${nuevos.length === 1 ? '¡Objetivo cumplido!' : `${nuevos.length} objetivos cumplidos`}</strong></div>${lista}<button class="btn-primary btn-block pr-ok">Genial</button></div>`;
+    document.body.appendChild(banner);
+    const cerrar = () => banner.remove();
+    banner.addEventListener('click', (e) => { if (e.target === banner || e.target.classList.contains('pr-ok')) cerrar(); });
+    setTimeout(cerrar, 6000);
+  }
+
   /* ============================================================ GUARDAR ============================================================ */
   function leerFormulario() {
     const b = state.borrador;
@@ -578,10 +743,12 @@
     const editando = !!state.editandoId;
     const guardada = editando ? DB.actualizarSesion(state.editandoId, b) : DB.crearSesion(b);
     const logros = guardada ? DB.detectarRecords(state.usuarioId, guardada) : [];
+    const objsCumplidos = DB.evaluarObjetivos(state.usuarioId);
     state.borrador = null; state.editandoId = null; state.tab = 'inicio';
     render();
     if (logros.length) notificarRecords(logros);
     else toast(editando ? 'Entrenamiento actualizado' : 'Entrenamiento guardado');
+    if (objsCumplidos.length) setTimeout(() => notificarObjetivos(objsCumplidos), logros.length ? 800 : 0);
   }
   function notificarRecords(logros) {
     const lista = logros.slice(0, 4).map(l => {
@@ -602,6 +769,11 @@
   function bindVista() {
     const cta = $('#cta-entrenar'); if (cta) cta.addEventListener('click', () => irA('entrenar'));
     const ap = $('#aviso-perfil'); if (ap) ap.addEventListener('click', formPerfilFisico);
+    const vo = $('#ver-objetivos'); if (vo) vo.addEventListener('click', () => irA('objetivos'));
+    $$('[data-goto="objetivos"]').forEach(b => b.addEventListener('click', () => irA('objetivos')));
+
+    // OBJETIVOS
+    if (state.tab === 'objetivos') bindObjetivos();
 
     // ENTRENAR
     $$('.session-pick').forEach(b => b.addEventListener('click', () => iniciarSesion(b.dataset.rutina)));

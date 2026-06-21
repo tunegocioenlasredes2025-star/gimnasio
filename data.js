@@ -307,6 +307,7 @@
     if (u.genero === undefined) u.genero = null;
     if (!Array.isArray(u.pesoHistorial)) u.pesoHistorial = [];
     if (!Array.isArray(u.ejerciciosCustom)) u.ejerciciosCustom = [];
+    if (!Array.isArray(u.objetivos)) u.objetivos = [];
     if (!Array.isArray(u.rutinas) || !u.rutinas.length) u.rutinas = rutinasPorDefecto();
     // normalizar orden
     u.rutinas.forEach((r, i) => { if (r.orden == null) r.orden = i; });
@@ -765,6 +766,98 @@
   }
 
   /* ============================================================
+     OBJETIVOS (metas por usuario, con progreso automático)
+     ============================================================ */
+  const OBJ_TIPOS = {
+    fuerza:         { label: 'Fuerza',         linkEjercicio: true, unidad: 'kg' },
+    repeticiones:   { label: 'Repeticiones',   linkEjercicio: true, unidad: 'reps' },
+    peso_corporal:  { label: 'Peso corporal',  unidad: 'kg' },
+    entrenamientos: { label: 'Entrenamientos', unidad: '' },
+    personalizado:  { label: 'Personalizado',  unidad: '' },
+  };
+
+  // Valor actual de un objetivo, traído automáticamente de los datos del usuario
+  function valorActualObjetivo(u, obj) {
+    if (!u || !obj) return 0;
+    switch (obj.tipo) {
+      case 'peso_corporal': return num(u.pesoCorporal);
+      case 'fuerza': { const r = getRecords(u.id).find(x => x.ejercicioId === obj.ejercicioId); return r ? r.pesoMax : 0; }
+      case 'repeticiones': { const r = getRecords(u.id).find(x => x.ejercicioId === obj.ejercicioId); return r ? r.repsMax : 0; }
+      case 'entrenamientos': return obj.periodo === 'semanal' ? resumenSemana(u.id).entrenamientos : getSesiones(u.id).length;
+      default: return num(obj.valorActualManual);
+    }
+  }
+
+  // Progreso { actual, meta, porcentaje }
+  function progresoObjetivo(u, obj) {
+    const actual = valorActualObjetivo(u, obj);
+    const meta = num(obj.valorObjetivo);
+    let pct;
+    if (obj.direccion === 'bajar') {
+      const ini = num(obj.valorInicial);
+      pct = (ini === meta) ? 100 : ((ini - actual) / (ini - meta)) * 100;
+    } else {
+      pct = meta ? (actual / meta) * 100 : 0;
+    }
+    pct = Math.max(0, Math.min(100, pct));
+    return { actual, meta, porcentaje: pct };
+  }
+
+  function getObjetivos(usuarioId) { const u = getUsuario(usuarioId); return u ? (u.objetivos || []) : []; }
+
+  function crearObjetivo(usuarioId, d) {
+    const u = getUsuario(usuarioId); if (!u) return null;
+    const tipo = OBJ_TIPOS[d.tipo] ? d.tipo : 'personalizado';
+    const meta = num(d.valorObjetivo);
+    const obj = {
+      id: uid('OB'), nombre: (d.nombre || '').trim() || 'Objetivo',
+      tipo, ejercicioId: d.ejercicioId || null, periodo: d.periodo || 'total',
+      valorObjetivo: meta,
+      valorInicial: d.valorInicial != null && d.valorInicial !== '' ? num(d.valorInicial) : 0,
+      valorActualManual: tipo === 'personalizado' ? num(d.valorActual) : 0,
+      direccion: 'subir', principal: !!d.principal,
+      fechaCreacion: todayISO(), fechaObjetivo: d.fechaObjetivo || null,
+      completado: false, fechaCompletado: null,
+    };
+    const actual = valorActualObjetivo(u, obj);
+    if (!obj.valorInicial) obj.valorInicial = actual;
+    if (tipo === 'peso_corporal' && meta && meta < obj.valorInicial) obj.direccion = 'bajar';
+    if (obj.principal) (u.objetivos || []).forEach(o => o.principal = false);
+    u.objetivos = u.objetivos || [];
+    u.objetivos.unshift(obj);
+    persistUsuario(u);
+    return obj;
+  }
+
+  function actualizarObjetivo(usuarioId, objId, cambios) {
+    const u = getUsuario(usuarioId); if (!u) return null;
+    const o = (u.objetivos || []).find(x => x.id === objId); if (!o) return null;
+    if (cambios.principal) (u.objetivos || []).forEach(x => x.principal = false);
+    Object.assign(o, cambios);
+    persistUsuario(u);
+    return o;
+  }
+  function eliminarObjetivo(usuarioId, objId) {
+    const u = getUsuario(usuarioId); if (!u) return;
+    u.objetivos = (u.objetivos || []).filter(o => o.id !== objId);
+    persistUsuario(u);
+  }
+
+  // Detecta objetivos recién cumplidos, los archiva con fecha y los devuelve (para festejar)
+  function evaluarObjetivos(usuarioId) {
+    const u = getUsuario(usuarioId); if (!u) return [];
+    let changed = false; const nuevos = [];
+    (u.objetivos || []).forEach(o => {
+      if (o.completado) return;
+      if (o.tipo === 'entrenamientos' && o.periodo === 'semanal') return; // meta recurrente: no se archiva
+      const p = progresoObjetivo(u, o);
+      if (p.porcentaje >= 100) { o.completado = true; o.fechaCompletado = todayISO(); changed = true; nuevos.push(o); }
+    });
+    if (changed) persistUsuario(u);
+    return nuevos;
+  }
+
+  /* ============================================================
      EXPORT / IMPORT
      ============================================================ */
   function exportar() { return JSON.stringify(load(), null, 2); }
@@ -800,6 +893,8 @@
     volumenSesion, seriesSesion, ejerciciosSesion, serieValida, cargaEfectiva,
     getRecords, recordsRecientes, detectarRecords, metricas, resumenSemana, serieTemporal,
     fuerzaRelativa, analisisRelativo, progresion, ultimaCarga,
+    OBJ_TIPOS, getObjetivos, crearObjetivo, actualizarObjetivo, eliminarObjetivo,
+    valorActualObjetivo, progresoObjetivo, evaluarObjetivos,
     e1rm, exportar, importar, nowISO, todayISO,
     init, get cloudEnabled() { return Cloud.enabled; }, onRemoteChange: null,
   };

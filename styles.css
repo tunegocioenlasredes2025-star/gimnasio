@@ -579,6 +579,51 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   .nav-btn .nav-ico svg { width: 21px; height: 21px; }
 }
 
+/* ============================================================
+   OBJETIVOS · barras de progreso, tarjetas, widget
+   ============================================================ */
+.prog { width: 100%; height: 10px; background: var(--bg2); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width .4s ease; min-width: 0; }
+.prog-fill.full { background: linear-gradient(90deg, var(--primary), var(--primary-d)); }
+
+.goals-list { display: flex; flex-direction: column; gap: 12px; margin: 14px 0; }
+.goal-card { padding: 15px 16px; }
+.goal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.goal-name { display: flex; flex-direction: column; gap: 2px; font-weight: 700; font-size: 16px; line-height: 1.25; }
+.goal-tipo { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: none; }
+.goal-star { color: #fbbf24; }
+.goal-menu { width: 32px; height: 32px; flex: 0 0 auto; font-size: 18px; letter-spacing: 1px; }
+.goal-vals { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); margin-bottom: 9px; }
+.goal-vals b { color: var(--text); font-size: 15px; font-family: var(--font-display); }
+.goal-pct { margin-top: 8px; font-size: 13px; font-weight: 700; color: var(--primary); }
+
+.done-list { padding: 6px 16px; }
+.done-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.done-row:last-child { border-bottom: none; }
+.done-check { color: var(--primary); font-weight: 800; flex: 0 0 auto; }
+.done-name { flex: 1; font-weight: 600; }
+.section-head.sub { margin: 22px 0 8px; }
+.section-head.sub h3 { font-size: 16px; font-weight: 800; }
+.check-row { display: flex; align-items: center; gap: 9px; font-size: 14px; color: var(--text); padding: 2px 0; }
+.check-row input { width: 18px; height: 18px; accent-color: var(--primary); }
+
+/* widget en Dashboard */
+.goals-widget .gw-row { padding: 8px 0; cursor: pointer; }
+.goals-widget .gw-row + .gw-row { border-top: 1px solid var(--line); }
+.gw-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 7px; }
+.gw-name { font-weight: 600; font-size: 14px; }
+.gw-pct { font-family: var(--font-display); font-weight: 800; font-size: 15px; color: var(--primary); }
+.link-mini { color: var(--secondary); font-size: 13px; font-weight: 600; }
+
+/* nav con 6 pestañas: compactar */
+.bottom-nav .nav-btn { font-size: 9.5px; }
+.bottom-nav .nav-btn .nav-ico svg { width: 21px; height: 21px; }
+@media (max-width: 380px) {
+  .bottom-nav { padding-left: 0; padding-right: 0; }
+  .bottom-nav .nav-btn { font-size: 9px; }
+  .bottom-nav .nav-btn .nav-ico svg { width: 20px; height: 20px; }
+}
+
 /* desktop: limitar ancho y centrar */
 @media (min-width: 600px) {
   .view { padding-left: 20px; padding-right: 20px; }
